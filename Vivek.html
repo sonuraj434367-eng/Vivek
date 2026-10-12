@@ -214,7 +214,7 @@
                 <div class="cake-emoji" id="cakeEmoji">🎂</div>
                 <div class="knife" id="knife">🔪</div>
             </div>
-            <p style="color: #e1bee7; font-size: 14px; margin-top: 10px;">Vivek bhai cake taiyar hai</p>
+            <p style="color: #e1bee7; font-size: 14px; margin-top: 10px;">Vivek bhai cake taiyar hai </p>
             <div class="signature">From: Saroj 🤍</div>
         </div>
     </div>
@@ -231,7 +231,7 @@
         resizeCanvas();
 
         const butterflies = [];
-        const photoDrops = [];
+        const balloons = []; // Chhote gubbare array
         const clickSparks = [];
         const fireworks = [];
         const sparks = [];
@@ -352,35 +352,31 @@
                 ctx.restore();
             });
 
+            // Falling Small Balloons (Page 2 se start)
             if (is2ndOr3rdPageActive) {
-                if (Math.random() < 0.03) {
-                    photoDrops.push({
+                if (Math.random() < 0.04) {
+                    balloons.push({
                         x: Math.random() * (canvas.width - 40) + 20,
                         y: -40,
-                        vy: Math.random() * 0.6 + 0.4,
-                        size: 32
+                        vy: Math.random() * 0.7 + 0.5,
+                        size: Math.random() * 8 + 20, // Chhote gubbare
+                        symbol: ['🎈', '🎈', '🎈', '✨'][Math.floor(Math.random() * 4)]
                     });
                 }
 
-                for (let i = photoDrops.length - 1; i >= 0; i--) {
-                    let pd = photoDrops[i];
-                    pd.y += pd.vy;
+                for (let i = balloons.length - 1; i >= 0; i--) {
+                    let bl = balloons[i];
+                    bl.y += bl.vy;
 
                     ctx.save();
-                    if (userImg.complete && userImg.naturalWidth !== 0) {
-                        ctx.beginPath();
-                        ctx.arc(pd.x + pd.size/2, pd.y + pd.size/2, pd.size/2, 0, Math.PI * 2);
-                        ctx.closePath();
-                        ctx.clip();
-                        ctx.drawImage(userImg, pd.x, pd.y, pd.size, pd.size);
-                    } else {
-                        ctx.font = '22px Arial';
-                        ctx.fillText('🎈', pd.x, pd.y);
-                    }
+                    ctx.font = `${bl.size}px Arial`;
+                    ctx.shadowColor = '#ff69b4';
+                    ctx.shadowBlur = 15;
+                    ctx.fillText(bl.symbol, bl.x, bl.y);
                     ctx.restore();
 
-                    if (pd.y > canvas.height + 40) {
-                        photoDrops.splice(i, 1);
+                    if (bl.y > canvas.height + 40) {
+                        balloons.splice(i, 1);
                     }
                 }
             }
@@ -484,7 +480,6 @@
                 
                 knife.style.transform = `translate(${x - 100}px, 20px) rotate(-45deg)`;
 
-                // Thoda sa bhi drag hone par cake cut ho jayega
                 if (x > 70) {
                     cutDone = true;
                     isDragging = false;
@@ -504,7 +499,6 @@
                 }
             };
 
-            // Touch aur Mouse dono ke liye proper events
             cakeArea.addEventListener('pointerdown', startDrag);
             window.addEventListener('pointermove', (e) => moveDrag(e.clientX));
             window.addEventListener('pointerup', stopDrag);
@@ -559,12 +553,12 @@
         }
 
         const vivekMessages = [
-            "Happy Birthday Vivek bhai! Muskuraate raho hamesha, poore ho aapke saare armaan! 🎂✨ — Saroj",
+            "Happy Birthday Vivek bhai! Muskuraate raho hamesha ❤️, poore ho aapke saare armaan! 🎂✨ — Saroj",
             "10 October ka yeh din mere liye sabse khass din hai! 💖",
             "Janamdin mubarak ho Vivek bhai, khushiyan rahein sadaa aabaad! 🎂✨",
-            "Bhagwan se yahi dua hai ki apki saari khwahishein poori hoin.",
+            "Bhagwan se yahi dua hai ki apki saari khwahishein poori hoin.❤️🎂",
             "Dua hai rab se, har khushi ho aapke paas! 🎂✨ - apka dost saroj.",
-            "Zindagi ke har safar main ham hamesha apke sath hai.",
+            "Zindagi ke har safar main ham hamesha apke sath hai🎂❤️.",
             "Aapka yeh birthday aapke jaisa hi shandaar ho! 🎂",
             "Vivek bhai, janamdin ki dher saari shubhkaamnayein! 🥂🎉"
         ];
