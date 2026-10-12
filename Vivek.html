@@ -7,7 +7,7 @@
     <style>
         body {
             margin: 0;
-            background: radial-gradient(circle at center, #1b0f24 0%, #08030c 100%);
+            background: #000;
             overflow: hidden;
             height: 100vh;
             display: flex;
@@ -116,6 +116,7 @@
             align-items: center;
             justify-content: center;
             cursor: grab;
+            touch-action: none;
         }
 
         .cake-emoji {
@@ -130,7 +131,7 @@
             top: -20px;
             right: -20px;
             pointer-events: none;
-            transition: transform 0.1s linear;
+            transition: transform 0.05s linear;
             filter: drop-shadow(0 0 10px #fff);
             z-index: 15;
         }
@@ -196,11 +197,11 @@
         <source src="https://www.bensound.com/bensound-music/bensound-tenderness.mp3" type="audio/mp3">
     </audio>
 
-    <div class="container">
+    <div class="container" id="mainContainer">
         <!-- PAGE 1 -->
         <div class="page active" id="page1">
             <div class="heart-glow" onclick="goToPage2()">❤️</div>
-            <div class="welcome-title">VIVEK APKE LIYE </div>
+            <div class="welcome-title">VIVEK APKE LIYE</div>
             <div class="welcome-sub">Tap to Open Your Surprise ✨</div>
             <div class="signature">From: Saroj (10 October Special)</div>
         </div>
@@ -208,7 +209,7 @@
         <!-- PAGE 2 -->
         <div class="page" id="page2">
             <div class="welcome-title" style="font-size: 24px;">Happy Birthday Vivek Bhai! 🎉</div>
-            <div class="cake-title">🎂 ❤️ 🎂 ❤️ 🎂 ❤️ 🎂 </div>
+            <div class="cake-title">🎂 ❤️ 🎂 ❤️ 🎂 ❤️ 🎂</div>
             <div class="cake-area" id="cakeArea">
                 <div class="cake-emoji" id="cakeEmoji">🎂</div>
                 <div class="knife" id="knife">🔪</div>
@@ -234,11 +235,12 @@
         const clickSparks = [];
         const fireworks = [];
         const sparks = [];
-        const imageRipples = []; // Photo Wave Ripples array
+        const imageRipples = [];
 
         const userImg = new Image();
         userImg.src = 'Vivek_Gallery.jpg';
 
+        let is2ndOr3rdPageActive = false;
         let is3rdPageActive = false;
 
         for (let i = 0; i < 35; i++) {
@@ -258,7 +260,6 @@
             const cx = e.clientX;
             const cy = e.clientY;
 
-            // Trigger Photo Wave Ripple on Click (for Page 3)
             if (is3rdPageActive) {
                 imageRipples.push({
                     x: cx,
@@ -300,11 +301,16 @@
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Render Photo Wave Ripples across full screen
+            if (is3rdPageActive && userImg.complete && userImg.naturalWidth !== 0) {
+                ctx.save();
+                ctx.drawImage(userImg, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
+
             for (let i = imageRipples.length - 1; i >= 0; i--) {
                 let rip = imageRipples[i];
-                rip.radius += 12; // Wave expansion speed
-                rip.alpha -= 0.008; // Fade speed
+                rip.radius += 12;
+                rip.alpha -= 0.008;
 
                 if (rip.alpha <= 0 || rip.radius > rip.maxRadius) {
                     imageRipples.splice(i, 1);
@@ -312,14 +318,12 @@
                     ctx.save();
                     ctx.globalAlpha = Math.max(0, rip.alpha);
                     
-                    // Circular clipping wave ring
                     ctx.beginPath();
                     ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
                     ctx.arc(rip.x, rip.y, Math.max(0, rip.radius - rip.lineWidth), 0, Math.PI * 2, true);
                     ctx.closePath();
                     ctx.clip();
 
-                    // Render background photo inside wave ring with liquid glow
                     ctx.drawImage(userImg, 0, 0, canvas.width, canvas.height);
                     ctx.shadowColor = '#ff69b4';
                     ctx.shadowBlur = 25;
@@ -348,34 +352,36 @@
                 ctx.restore();
             });
 
-            if (Math.random() < 0.03) {
-                photoDrops.push({
-                    x: Math.random() * (canvas.width - 40) + 20,
-                    y: -40,
-                    vy: Math.random() * 0.6 + 0.4,
-                    size: 32
-                });
-            }
-
-            for (let i = photoDrops.length - 1; i >= 0; i--) {
-                let pd = photoDrops[i];
-                pd.y += pd.vy;
-
-                ctx.save();
-                if (userImg.complete && userImg.naturalWidth !== 0) {
-                    ctx.beginPath();
-                    ctx.arc(pd.x + pd.size/2, pd.y + pd.size/2, pd.size/2, 0, Math.PI * 2);
-                    ctx.closePath();
-                    ctx.clip();
-                    ctx.drawImage(userImg, pd.x, pd.y, pd.size, pd.size);
-                } else {
-                    ctx.font = '22px Arial';
-                    ctx.fillText('🎈', pd.x, pd.y);
+            if (is2ndOr3rdPageActive) {
+                if (Math.random() < 0.03) {
+                    photoDrops.push({
+                        x: Math.random() * (canvas.width - 40) + 20,
+                        y: -40,
+                        vy: Math.random() * 0.6 + 0.4,
+                        size: 32
+                    });
                 }
-                ctx.restore();
 
-                if (pd.y > canvas.height + 40) {
-                    photoDrops.splice(i, 1);
+                for (let i = photoDrops.length - 1; i >= 0; i--) {
+                    let pd = photoDrops[i];
+                    pd.y += pd.vy;
+
+                    ctx.save();
+                    if (userImg.complete && userImg.naturalWidth !== 0) {
+                        ctx.beginPath();
+                        ctx.arc(pd.x + pd.size/2, pd.y + pd.size/2, pd.size/2, 0, Math.PI * 2);
+                        ctx.closePath();
+                        ctx.clip();
+                        ctx.drawImage(userImg, pd.x, pd.y, pd.size, pd.size);
+                    } else {
+                        ctx.font = '22px Arial';
+                        ctx.fillText('🎈', pd.x, pd.y);
+                    }
+                    ctx.restore();
+
+                    if (pd.y > canvas.height + 40) {
+                        photoDrops.splice(i, 1);
+                    }
                 }
             }
 
@@ -445,6 +451,7 @@
             const bgMusic = document.getElementById('bgMusic');
             bgMusic.play().catch(e => console.log("Audio play blocked"));
 
+            is2ndOr3rdPageActive = true;
             document.body.style.background = "radial-gradient(circle at center, #240f1b 0%, #0c0308 100%)";
             document.getElementById('page1').classList.remove('active');
             setTimeout(() => {
@@ -460,19 +467,25 @@
             let isDragging = false;
             let cutDone = false;
 
-            cakeArea.addEventListener('pointerdown', () => {
+            const startDrag = (e) => {
                 if (cutDone) return;
                 isDragging = true;
-            });
+                e.preventDefault();
+            };
 
-            window.addEventListener('pointermove', (e) => {
+            const stopDrag = () => {
+                isDragging = false;
+            };
+
+            const moveDrag = (clientX) => {
                 if (!isDragging || cutDone) return;
                 const rect = cakeArea.getBoundingClientRect();
-                const x = e.clientX - rect.left;
+                const x = clientX - rect.left;
                 
                 knife.style.transform = `translate(${x - 100}px, 20px) rotate(-45deg)`;
 
-                if (x > 120) {
+                // Thoda sa bhi drag hone par cake cut ho jayega
+                if (x > 70) {
                     cutDone = true;
                     isDragging = false;
                     cakeEmoji.innerHTML = '🍰✨';
@@ -485,20 +498,32 @@
 
                     setTimeout(() => {
                         page2.style.display = 'none';
+                        document.getElementById('mainContainer').style.display = 'none';
                         startGrandCelebration();
                     }, 400);
                 }
-            });
+            };
 
-            window.addEventListener('pointerup', () => {
-                isDragging = false;
+            // Touch aur Mouse dono ke liye proper events
+            cakeArea.addEventListener('pointerdown', startDrag);
+            window.addEventListener('pointermove', (e) => moveDrag(e.clientX));
+            window.addEventListener('pointerup', stopDrag);
+
+            cakeArea.addEventListener('touchstart', (e) => {
+                if (cutDone) return;
+                isDragging = true;
             });
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    moveDrag(e.touches[0].clientX);
+                }
+            });
+            window.addEventListener('touchend', stopDrag);
         }
 
         function startGrandCelebration() {
             is3rdPageActive = true;
-            // Full Screen Background Photo
-            document.body.style.background = "linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('Sonuraj_hart_animation.jpg') no-repeat center center / cover";
+            document.body.style.background = "#000000";
 
             setInterval(() => {
                 for(let i=0; i<4; i++) {
